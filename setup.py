@@ -11,7 +11,7 @@ except ImportError:
 
 kw = {
     'name': "path.py",
-    'version': "2.2.2-21",
+    'version': "{{ ___VERSION___ }}",
     'description': "A module wrapper for os.path",
     'author': "Christian Fobel",
     'author_email': "christian@fobel.net",
@@ -34,7 +34,7 @@ if hasattr(distutils.core, 'setup_keywords'):
             'Topic :: Software Development :: Libraries :: Python Modules'
           ]
     if 'download_url' in distutils.core.setup_keywords:
-        urlfmt = "http://github.com/dottedmag/path.py/tarball/%s"
+        urlfmt = "http://github.com/cfobel/path.py/tarball/%s"
         kw['download_url'] = urlfmt % kw['version']
 
 
