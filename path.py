@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2010 Mikhail Gusarov
+# Copyright (c) 2011 Christian Fobel
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ Original author:
 
 Contributors:
  Mikhail Gusarov <dottedmag@dottedmag.net>
+ Christian Fobel <christian@fobel.net>
 
 Example:
 
@@ -41,6 +42,10 @@ This module requires Python 2.3 or later.
 from __future__ import generators
 
 import sys, warnings, os, fnmatch, glob, shutil, codecs, hashlib, errno
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 __version__ = '2.2.2.990'
 __all__ = ['path']
@@ -671,6 +676,17 @@ class path(_base):
                 bytes = text.replace('\n', linesep)
 
         self.write_bytes(bytes, append)
+
+    def pickle_dump(self, obj, *args, **kwargs):
+        file = self.open('wb')
+        pickle.dump(obj, file, *args, **kwargs)
+        file.close()
+
+    def pickle_load(self, *args, **kwargs):
+        file = self.open('rb')
+        obj = pickle.load(file, *args, **kwargs)
+        file.close()
+        return obj
 
     def lines(self, encoding=None, errors='strict', retain=True):
         r""" Open this file, read all lines, return them in a list.
