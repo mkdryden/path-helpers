@@ -440,11 +440,9 @@ class path(_base):
 
         def ignore_match(x):
             if ignore is not None:
-                try:
-                    iter(ignore)
-                    # ignore is iterable
+                if not isinstance(ignore, str):
                     ignore_list = ignore
-                except TypeError:
+                else:
                     ignore_list = [ignore]
                 for ip in ignore_list:
                     if re.search(ip, x):
@@ -493,11 +491,9 @@ class path(_base):
 
         def ignore_match(x):
             if ignore is not None:
-                try:
-                    iter(ignore)
-                    # ignore is iterable
+                if not isinstance(ignore, str):
                     ignore_list = ignore
-                except TypeError:
+                else:
                     ignore_list = [ignore]
                 for ip in ignore_list:
                     if re.search(ip, x):
