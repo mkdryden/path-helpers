@@ -41,7 +41,7 @@ This module requires Python 2.3 or later.
 
 from __future__ import generators
 
-import sys, warnings, os, fnmatch, glob, shutil, codecs, hashlib, errno
+import sys, warnings, os, fnmatch, glob, shutil, codecs, hashlib, errno, re
 try:
     import cPickle as pickle
 except ImportError:
@@ -417,7 +417,7 @@ class path(_base):
                 for item in child.walk(pattern, errors):
                     yield item
 
-    def walkdirs(self, pattern=None, errors='strict'):
+    def walkdirs(self, pattern=None, errors='strict', ignore=None):
         """ D.walkdirs() -> iterator over subdirs, recursively.
 
         With the optional 'pattern' argument, this yields only
@@ -429,9 +429,30 @@ class path(_base):
         error occurs.  The default is 'strict', which causes an
         exception.  The other allowed values are 'warn', which
         reports the error via warnings.warn(), and 'ignore'.
+
+        The optional argument 'ignore' ignores any directory or file that
+        is specified using one or more regular expression patterns.  If ignore
+        is iterable, each pattern will be iterated through.  Otherwise, ignore
+        is assumed to be a single string regular expression pattern.
         """
         if errors not in ('strict', 'warn', 'ignore'):
             raise ValueError("invalid errors parameter")
+
+        def ignore_match(x):
+            if ignore is not None:
+                try:
+                    iter(ignore)
+                    # ignore is iterable
+                    ignore_list = ignore
+                except TypeError:
+                    ignore_list = [ignore]
+                for ip in ignore_list:
+                    if re.search(ip, x):
+                        return True
+            return False
+
+        if ignore_match(self):
+            return
 
         try:
             dirs = self.dirs()
@@ -449,20 +470,42 @@ class path(_base):
 
         for child in dirs:
             if pattern is None or child.fnmatch(pattern):
-                yield child
-            for subsubdir in child.walkdirs(pattern, errors):
+                if not ignore_match(child):
+                    yield child
+            for subsubdir in child.walkdirs(pattern, errors, ignore):
                 yield subsubdir
 
-    def walkfiles(self, pattern=None, errors='strict'):
+    def walkfiles(self, pattern=None, errors='strict', ignore=None):
         """ D.walkfiles() -> iterator over files in D, recursively.
 
         The optional argument, pattern, limits the results to files
         with names that match the pattern.  For example,
         mydir.walkfiles('*.tmp') yields only files with the .tmp
         extension.
+
+        The optional argument, ignore, ignores any directory or file that
+        is specified using one or more regular expression patterns.  If ignore
+        is iterable, each pattern will be iterated through.  Otherwise, ignore
+        is assumed to be a single string regular expression pattern.
         """
         if errors not in ('strict', 'warn', 'ignore'):
             raise ValueError("invalid errors parameter")
+
+        def ignore_match(x):
+            if ignore is not None:
+                try:
+                    iter(ignore)
+                    # ignore is iterable
+                    ignore_list = ignore
+                except TypeError:
+                    ignore_list = [ignore]
+                for ip in ignore_list:
+                    if re.search(ip, x):
+                        return True
+            return False
+
+        if ignore_match(self):
+            return
 
         try:
             childList = self.listdir()
@@ -496,9 +539,10 @@ class path(_base):
 
             if isfile:
                 if pattern is None or child.fnmatch(pattern):
-                    yield child
+                    if not ignore_match(child):
+                        yield child
             elif isdir:
-                for f in child.walkfiles(pattern, errors):
+                for f in child.walkfiles(pattern, errors, ignore):
                     yield f
 
     def fnmatch(self, pattern):
@@ -1045,4 +1089,3 @@ class path(_base):
     if hasattr(os, 'startfile'):
         def startfile(self):
             os.startfile(self)
-
