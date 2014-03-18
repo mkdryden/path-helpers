@@ -11,7 +11,7 @@ import version
 # Setup script for path
 
 kw = {
-    'name': 'path.py',
+    'name': 'path_helpers',
     'version': version.getVersion(),
     'description': 'Helper class and functions for working with file path',
     'author': 'Christian Fobel',
