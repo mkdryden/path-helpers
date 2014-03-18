@@ -19,7 +19,7 @@ Authors:
 
 import unittest
 import codecs, os, random, shutil, tempfile, time
-from path import path, __version__ as path_version
+from path_helpers import path, __version__ as path_version
 
 # This should match the version of path.py being tested.
 __version__ = '{{ ___VERSION___ }}'
