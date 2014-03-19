@@ -33,9 +33,6 @@ if hasattr(distutils.core, 'setup_keywords'):
             'Operating System :: OS Independent',
             'Programming Language :: Python',
             'Topic :: Software Development :: Libraries :: Python Modules']
-    if 'download_url' in distutils.core.setup_keywords:
-        urlfmt = 'http://github.com/cfobel/path_helpers/tarball/%s'
-        kw['download_url'] = urlfmt % kw['version']
 
 
 distutils.core.setup(**kw)
