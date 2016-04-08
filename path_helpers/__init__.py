@@ -41,7 +41,18 @@ This module requires Python 2.3 or later.
 
 from __future__ import generators
 
-import sys, warnings, os, fnmatch, glob, shutil, codecs, hashlib, errno, re
+import codecs
+import errno
+import fnmatch
+import glob
+import hashlib
+import os
+import platform
+import re
+import shutil
+import subprocess
+import sys
+import warnings
 try:
     import cPickle as pickle
 except ImportError:
@@ -82,6 +93,23 @@ except NameError:
 _textmode = 'U'
 if hasattr(__builtins__, 'file') and not hasattr(file, 'newlines'):
     _textmode = 'r'
+
+
+def open_path(path_):
+    '''
+    Open file/directory using default application.
+    
+    Adapted from [here][1].
+
+    [1]: http://stackoverflow.com/questions/6631299/python-opening-a-folder-in-explorer-nautilus-mac-thingie#16204023
+    '''
+    if platform.system() == "Windows":
+        os.startfile(path_)
+    elif platform.system() == "Darwin":
+        subprocess.Popen(["open", path_])
+    else:
+        subprocess.Popen(["xdg-open", path_])
+
 
 class TreeWalkWarning(Warning):
     pass
@@ -361,7 +389,7 @@ class path(_base):
         whose names match the given pattern.  For example,
         d.files('*.pyc').
         """
-        
+
         return [p for p in self.listdir(pattern) if p.isfile()]
 
     def walk(self, pattern=None, errors='strict'):
@@ -1030,6 +1058,12 @@ class path(_base):
 
     def unlink_p(self):
         self.remove_p()
+
+    def launch(self):
+        '''
+        Open file/directory using default application.
+        '''
+        open_path(self)
 
     # --- Links
 
