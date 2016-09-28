@@ -1065,6 +1065,52 @@ class path(_base):
         '''
         open_path(self)
 
+    def noconflict(self):
+        '''
+        Returns
+        -------
+        path_helpers.path
+            File system path based on :data:`self`.
+
+            If file exists at the specified :data:`path`, return
+            the next available unique name with `` (Copy <i>)``
+            appended to the base of the name.
+
+        Examples
+        --------
+
+        >>> path = path_helpers.path('foo.txt').noconflict()
+        >>> path
+        path(u'foo.txt')
+        >>> path.exists()
+        False
+        >>> path.touch()
+        >>> path = path_helpers.path('foo.txt').noconflict()
+        >>> path
+        path(u'foo (Copy).txt')
+        >>> path.touch()
+        >>> path = path_helpers.path('foo.txt').noconflict()
+        >>> path
+        path(u'foo (Copy 1).txt')
+        '''
+        cre_copy = re.compile(r'^(?P<name>.*?)'
+                              r'(?P<copy> \(Copy(?P<copy_count> \d+)?\))?'
+                              r'(?P<ext>\.[^.]*)?$')
+        candidate_path = self
+
+        while candidate_path.exists():
+            groups_i = cre_copy.match(candidate_path.name).groupdict()
+            if groups_i['copy']:
+                groups_i['copy_count'] = (0 if groups_i['copy_count'] is None
+                                          else int(groups_i['copy_count']))
+                groups_i['copy_count'] += 1
+            candidate_name_i = ('{name} (Copy{}){}'
+                                .format(' {}'.format(groups_i['copy_count'])
+                                        if groups_i['copy_count'] else '',
+                                        groups_i['ext'] or '', **groups_i))
+            candidate_path = candidate_path.parent.joinpath(candidate_name_i)
+        return candidate_path
+
     # --- Links
 
     if hasattr(os, 'link'):
