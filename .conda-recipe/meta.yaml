@@ -1,5 +1,5 @@
 package:
-  name: path-helpers
+  name: path_helpers
 {% if GIT_DESCRIBE_NUMBER > '0' %}
   version: {{ GIT_DESCRIBE_TAG[1:] }}.post{{ GIT_DESCRIBE_NUMBER }}
 {% else %}
