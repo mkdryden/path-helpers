@@ -34,7 +34,7 @@ Example:
 from path_helpers import path
 d = path('/home/guido/bin')
 for f in d.files('*.py'):
-    f.chmod(0755)
+    f.chmod(0o755)
 
 This module requires Python 2.3 or later.
 """
@@ -73,6 +73,12 @@ else:
     except ImportError:
         pwd = None
 
+# Python 3 workaround for unicode.
+try:
+    unicode
+except NameError:
+    unicode = str
+
 # Pre-2.3 support.  Are unicode filenames supported?
 _base = str
 _getcwd = os.getcwd
@@ -98,7 +104,7 @@ if hasattr(__builtins__, 'file') and not hasattr(file, 'newlines'):
 def open_path(path_):
     '''
     Open file/directory using default application.
-    
+
     Adapted from [here][1].
 
     [1]: http://stackoverflow.com/questions/6631299/python-opening-a-folder-in-explorer-nautilus-mac-thingie#16204023
@@ -993,23 +999,23 @@ class path(_base):
 
     # --- Create/delete operations on directories
 
-    def mkdir(self, mode=0777):
+    def mkdir(self, mode=0o777):
         os.mkdir(self, mode)
 
-    def mkdir_p(self, mode=0777):
+    def mkdir_p(self, mode=0o777):
         try:
             self.mkdir(mode)
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
 
-    def makedirs(self, mode=0777):
+    def makedirs(self, mode=0o777):
         os.makedirs(self, mode)
 
-    def makedirs_p(self, mode=0777):
+    def makedirs_p(self, mode=0o777):
         try:
             self.makedirs(mode)
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
 
@@ -1019,7 +1025,7 @@ class path(_base):
     def rmdir_p(self):
         try:
             self.rmdir()
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.ENOTEMPTY and e.errno != errno.EEXIST:
                 raise
 
@@ -1029,7 +1035,7 @@ class path(_base):
     def removedirs_p(self):
         try:
             self.removedirs()
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.ENOTEMPTY and e.errno != errno.EEXIST:
                 raise
 
@@ -1039,7 +1045,7 @@ class path(_base):
         """ Set the access/modified times of this file to the current time.
         Create the file if it does not exist.
         """
-        fd = os.open(self, os.O_WRONLY | os.O_CREAT, 0666)
+        fd = os.open(self, os.O_WRONLY | os.O_CREAT, 0o666)
         os.close(fd)
         os.utime(self, None)
 
@@ -1049,7 +1055,7 @@ class path(_base):
     def remove_p(self):
         try:
             self.unlink()
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
 
