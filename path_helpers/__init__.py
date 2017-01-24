@@ -1161,7 +1161,6 @@ class path(_base):
         move = shutil.move
     rmtree = shutil.rmtree
 
-
     # --- Special stuff from os
 
     if hasattr(os, 'chroot'):
@@ -1171,3 +1170,20 @@ class path(_base):
     if hasattr(os, 'startfile'):
         def startfile(self):
             os.startfile(self)
+
+    # --- Special stuff from Conda
+
+    try:
+        import conda.common.disk
+    except ImportError:
+        pass
+    else:
+        rm_rf = conda.common.disk.rm_rf
+        rmtree = conda.common.disk.rmtree
+
+    # --- Special stuff for Windows
+
+    if platform.system() == 'Windows':
+        def mklink(self, target):
+            subprocess.check_output('mklink /J %s %s' % (target, self),
+                                    shell=True)
