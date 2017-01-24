@@ -67,6 +67,9 @@ if os.name == 'nt':
         import win32security
     except ImportError:
         win32security = None
+    import ntfsutils
+    import ntfsutils.junction
+    import ntfsutils.hardlink
 else:
     try:
         import pwd
@@ -1184,6 +1187,12 @@ class path(_base):
     # --- Special stuff for Windows
 
     if platform.system() == 'Windows':
-        def mklink(self, target):
-            subprocess.check_output('mklink /J %s %s' % (target, self),
-                                    shell=True)
+        # Junction methods
+        isjunction = ntfsutils.junction.isjunction
+        junction = ntfsutils.junction.create
+        def readlink(self):
+            return self.__class__(ntfsutils.junction.readlink(self))
+
+        # Hard link methods
+        link = ntfsutils.hardlink.create
+        samefile = ntfsutils.hardlink.samefile

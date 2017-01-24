@@ -14,6 +14,11 @@ build:
 requirements:
   build:
     - python
+    - ntfsutils # [win]
+
+  run:
+    - python
+    - ntfsutils # [win]
 
 # source will be downloaded prior to filling in jinja templates
 # Example assumes that this folder has setup.py in it
