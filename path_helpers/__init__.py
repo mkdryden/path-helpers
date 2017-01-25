@@ -38,14 +38,15 @@ for f in d.files('*.py'):
 
 This module requires Python 2.3 or later.
 """
-
 from __future__ import generators
 
 import codecs
+import contextlib
 import errno
 import fnmatch
 import glob
 import hashlib
+import logging
 import os
 import platform
 import re
@@ -102,6 +103,20 @@ except NameError:
 _textmode = 'U'
 if hasattr(__builtins__, 'file') and not hasattr(file, 'newlines'):
     _textmode = 'r'
+
+
+@contextlib.contextmanager
+def logging_restore():
+    '''
+    Save logging state upon entering context and restore upon leaving.
+    '''
+    handlers = logging.root.handlers[:]
+    level = logging.root.getEffectiveLevel()
+    yield
+    handlers_to_remove = logging.root.handlers[:]
+    [logging.root.removeHandler(h) for h in handlers_to_remove]
+    [logging.root.addHandler(h) for h in handlers]
+    logging.root.setLevel(level)
 
 
 def open_path(path_):
@@ -1177,7 +1192,10 @@ class path(_base):
     # --- Special stuff from Conda
 
     try:
-        import conda.common.disk
+        # Import within `logging_restore` context to prevent Conda from
+        # clobbering active `logging` settings.
+        with logging_restore():
+            import conda.common.disk
     except ImportError:
         pass
     else:
