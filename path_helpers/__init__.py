@@ -1180,7 +1180,14 @@ class path(_base):
         # Junction methods
         isjunction = ntfsutils.junction.isjunction
         junction = ntfsutils.junction.create
-        unjunction = ntfsutils.junction.unlink
+        __unlink = unlink
+
+        def unlink(self):
+            if self.isjunction():
+                ntfsutils.junction.unlink(self)
+            else:
+                self.__unlink()
+
         def readlink(self):
             return self.__class__(ntfsutils.junction.readlink(self))
 
