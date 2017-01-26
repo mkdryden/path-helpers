@@ -62,6 +62,8 @@ except ImportError:
 __version__ = '{{ ___VERSION___ }}'
 __all__ = ['path']
 
+import logging_helpers as lh
+
 # Platform-specific support for path.owner
 if os.name == 'nt':
     try:
@@ -103,20 +105,6 @@ except NameError:
 _textmode = 'U'
 if hasattr(__builtins__, 'file') and not hasattr(file, 'newlines'):
     _textmode = 'r'
-
-
-@contextlib.contextmanager
-def logging_restore():
-    '''
-    Save logging state upon entering context and restore upon leaving.
-    '''
-    handlers = logging.root.handlers[:]
-    level = logging.root.getEffectiveLevel()
-    yield
-    handlers_to_remove = logging.root.handlers[:]
-    [logging.root.removeHandler(h) for h in handlers_to_remove]
-    [logging.root.addHandler(h) for h in handlers]
-    logging.root.setLevel(level)
 
 
 def open_path(path_):
@@ -1194,7 +1182,7 @@ class path(_base):
     try:
         # Import within `logging_restore` context to prevent Conda from
         # clobbering active `logging` settings.
-        with logging_restore():
+        with lh.logging_restore():
             import conda.common.disk
     except ImportError:
         pass

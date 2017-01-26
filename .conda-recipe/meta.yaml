@@ -13,10 +13,12 @@ build:
 
 requirements:
   build:
+    - logging-helpers
     - python
     - ntfsutils # [win]
 
   run:
+    - logging-helpers
     - python
     - ntfsutils # [win]
 
