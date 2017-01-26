@@ -46,7 +46,6 @@ import errno
 import fnmatch
 import glob
 import hashlib
-import logging
 import os
 import platform
 import re
@@ -61,8 +60,6 @@ except ImportError:
 
 __version__ = '{{ ___VERSION___ }}'
 __all__ = ['path']
-
-import logging_helpers as lh
 
 # Platform-specific support for path.owner
 if os.name == 'nt':
@@ -1177,25 +1174,13 @@ class path(_base):
         def startfile(self):
             os.startfile(self)
 
-    # --- Special stuff from Conda
-
-    try:
-        # Import within `logging_restore` context to prevent Conda from
-        # clobbering active `logging` settings.
-        with lh.logging_restore():
-            import conda.common.disk
-    except ImportError:
-        pass
-    else:
-        rm_rf = conda.common.disk.rm_rf
-        rmtree = conda.common.disk.rmtree
-
     # --- Special stuff for Windows
 
     if platform.system() == 'Windows':
         # Junction methods
         isjunction = ntfsutils.junction.isjunction
         junction = ntfsutils.junction.create
+        unjunction = ntfsutils.junction.unlink
         def readlink(self):
             return self.__class__(ntfsutils.junction.readlink(self))
 

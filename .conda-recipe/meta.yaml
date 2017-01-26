@@ -18,6 +18,7 @@ requirements:
     - ntfsutils # [win]
 
   run:
+    - conda
     - logging-helpers
     - python
     - ntfsutils # [win]
