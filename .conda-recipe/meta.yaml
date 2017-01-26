@@ -13,13 +13,11 @@ build:
 
 requirements:
   build:
-    - logging-helpers
     - python
     - ntfsutils # [win]
 
   run:
     - conda
-    - logging-helpers
     - python
     - ntfsutils # [win]
 

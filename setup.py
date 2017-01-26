@@ -19,8 +19,7 @@ kw = {
     'url': 'http://github.com/cfobel/path_helpers',
     'license': 'MIT License',
     'packages': ['path_helpers'],
-    'cmdclass': dict(build_py=build_py),
-    'install_requires': ['logging-helpers']
+    'cmdclass': dict(build_py=build_py)
 }
 
 
