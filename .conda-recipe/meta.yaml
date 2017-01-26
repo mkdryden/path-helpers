@@ -22,6 +22,10 @@ requirements:
     - python
     - ntfsutils # [win]
 
+test:
+  imports:
+    - path_helpers
+
 # source will be downloaded prior to filling in jinja templates
 # Example assumes that this folder has setup.py in it
 source:
