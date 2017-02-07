@@ -18,7 +18,6 @@ requirements:
     - ntfsutils # [win]
 
   run:
-    - conda
     - python
     - ntfsutils # [win]
 
