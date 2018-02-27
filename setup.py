@@ -4,10 +4,11 @@ import sys
 import setuptools as st
 
 sys.path.insert(0, '.')
-import version
+import versioneer
 
 st.setup(name='path_helpers',
-         version=version.getVersion(),
+         version=versioneer.get_version(),
+         cmdclass=versioneer.get_cmdclass(),
          description='Helper class and functions for working with file path',
          author='Christian Fobel',
          author_email='christian@fobel.net',

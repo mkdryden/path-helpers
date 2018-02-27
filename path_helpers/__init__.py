@@ -58,7 +58,11 @@ try:
 except ImportError:
     import pickle
 
-__version__ = '{{ ___VERSION___ }}'
+from ._version import get_versions
+
+__version__ = get_versions()['version']
+del get_versions
+
 __all__ = ['path']
 
 # Platform-specific support for path.owner
