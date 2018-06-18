@@ -1208,7 +1208,7 @@ def resource_copytree(module, src, dst, ignore=None):
     stored in a ``.zip`` archive or ``.egg`` file.
 
 
-    .. versionadded:: X.X.X
+    .. versionadded:: 0.8
     '''
     from contextlib import closing
     import pkg_resources
