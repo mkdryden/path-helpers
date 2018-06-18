@@ -1198,3 +1198,48 @@ class path(_base):
         # Hard link methods
         link = ntfsutils.hardlink.create
         samefile = ntfsutils.hardlink.samefile
+
+
+def resource_copytree(module, src, dst, ignore=None):
+    '''
+    Port of `shutil.copytree` to support copying from a Python module.
+
+    This maintains compatability, e.g., when copying from a module
+    stored in a ``.zip`` archive or ``.egg`` file.
+
+
+    .. versionadded:: X.X.X
+    '''
+    from contextlib import closing
+    import pkg_resources
+
+    names = pkg_resources.resource_listdir(module, src)
+    if ignore is not None:
+        ignored_names = ignore(module, src, names)
+    else:
+        ignored_names = set()
+
+    os.makedirs(dst)
+    errors = []
+    for name in names:
+        if name in ignored_names:
+            continue
+        srcname = os.path.join(src, name)
+        dstname = os.path.join(dst, name)
+        try:
+            if pkg_resources.resource_isdir(module, srcname):
+                resource_copytree(module, srcname, dstname, ignore)
+            else:
+                with closing(pkg_resources
+                             .resource_stream(module, srcname)) as srcstream:
+                    with open(dstname, 'wb') as output:
+                        output.write(srcstream.read())
+
+        # catch the Error from the recursive copytree so that we can
+        # continue with other files
+        except shutil.Error, err:
+            errors.extend(err.args[0])
+        except EnvironmentError, why:
+            errors.append((module, srcname, dstname, str(why)))
+    if errors:
+        raise shutil.Error, errors
