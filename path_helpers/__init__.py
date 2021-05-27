@@ -38,7 +38,7 @@ for f in d.files('*.py'):
 
 This module requires Python 2.3 or later.
 """
-from __future__ import generators
+
 
 import codecs
 import contextlib
@@ -54,7 +54,7 @@ import subprocess
 import sys
 import warnings
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
@@ -82,25 +82,25 @@ else:
 
 # Python 3 workaround for unicode.
 try:
-    unicode
+    str
 except NameError:
-    unicode = str
+    str = str
 
 # Pre-2.3 support.  Are unicode filenames supported?
 _base = str
 _getcwd = os.getcwd
 try:
     if os.path.supports_unicode_filenames:
-        _base = unicode
-        _getcwd = os.getcwdu
+        _base = str
+        _getcwd = os.getcwd
 except AttributeError:
     pass
 
 # Pre-2.3 workaround for basestring.
 try:
-    basestring
+    str
 except NameError:
-    basestring = (str, unicode)
+    str = (str, str)
 
 # Universal newline support
 _textmode = 'U'
@@ -150,7 +150,7 @@ class path(_base):
         return self.__class__(resultStr)
 
     def __radd__(self, other):
-        if isinstance(other, basestring):
+        if isinstance(other, str):
             return self.__class__(other.__add__(self))
         else:
             return NotImplemented
@@ -663,11 +663,11 @@ class path(_base):
                 t = f.read()
             finally:
                 f.close()
-            return (t.replace(u'\r\n', u'\n')
-                     .replace(u'\r\x85', u'\n')
-                     .replace(u'\r', u'\n')
-                     .replace(u'\x85', u'\n')
-                     .replace(u'\u2028', u'\n'))
+            return (t.replace('\r\n', '\n')
+                     .replace('\r\x85', '\n')
+                     .replace('\r', '\n')
+                     .replace('\x85', '\n')
+                     .replace('\u2028', '\n'))
 
     def write_text(self, text, encoding=None, errors='strict', linesep=os.linesep, append=False):
         r""" Write the given text to this file.
@@ -733,16 +733,16 @@ class path(_base):
         conversion.
 
         """
-        if isinstance(text, unicode):
+        if isinstance(text, str):
             if linesep is not None:
                 # Convert all standard end-of-line sequences to
                 # ordinary newline characters.
-                text = (text.replace(u'\r\n', u'\n')
-                            .replace(u'\r\x85', u'\n')
-                            .replace(u'\r', u'\n')
-                            .replace(u'\x85', u'\n')
-                            .replace(u'\u2028', u'\n'))
-                text = text.replace(u'\n', linesep)
+                text = (text.replace('\r\n', '\n')
+                            .replace('\r\x85', '\n')
+                            .replace('\r', '\n')
+                            .replace('\x85', '\n')
+                            .replace('\u2028', '\n'))
+                text = text.replace('\n', linesep)
             if encoding is None:
                 encoding = sys.getdefaultencoding()
             bytes = text.encode(encoding, errors)
@@ -836,15 +836,15 @@ class path(_base):
         f = self.open(mode)
         try:
             for line in lines:
-                isUnicode = isinstance(line, unicode)
+                isUnicode = isinstance(line, str)
                 if linesep is not None:
                     # Strip off any existing line-end and add the
                     # specified linesep string.
                     if isUnicode:
-                        if line[-2:] in (u'\r\n', u'\x0d\x85'):
+                        if line[-2:] in ('\r\n', '\x0d\x85'):
                             line = line[:-2]
-                        elif line[-1:] in (u'\r', u'\n',
-                                           u'\x85', u'\u2028'):
+                        elif line[-1:] in ('\r', '\n',
+                                           '\x85', '\u2028'):
                             line = line[:-1]
                     else:
                         if line[-2:] == '\r\n':
@@ -963,7 +963,7 @@ class path(_base):
                 self, win32security.OWNER_SECURITY_INFORMATION)
             sid = desc.GetSecurityDescriptorOwner()
             account, domain, typecode = win32security.LookupAccountSid(None, sid)
-            return domain + u'\\' + account
+            return domain + '\\' + account
         else:
             if pwd is None:
                 raise NotImplementedError("path.owner is not implemented on this platform.")
@@ -1237,9 +1237,13 @@ def resource_copytree(module, src, dst, ignore=None):
 
         # catch the Error from the recursive copytree so that we can
         # continue with other files
-        except shutil.Error, err:
+        except shutil.Error as err:
             errors.extend(err.args[0])
-        except EnvironmentError, why:
+        except EnvironmentError as why:
             errors.append((module, srcname, dstname, str(why)))
     if errors:
-        raise shutil.Error, errors
+        raise shutil.Error(errors)
+
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
